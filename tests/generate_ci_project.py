@@ -254,8 +254,8 @@ permissions/write_sms=false
 permissions/write_social_stream=false
 permissions/write_sync_settings=false
 permissions/write_user_dictionary=false
-architectures/armeabi_v7a=true
-architectures/arm64_v8a=true
+architectures/armeabi-v7a=true
+architectures/arm64-v8a=true
 architectures/x86=false
 architectures/x86_64=false
 keystore/debug="res://debug.keystore"
@@ -266,6 +266,7 @@ keystore/release_user=""
 keystore/release_password=""
 version/code=1
 version/name="1.0"
+gradle_build/use_gradle_build=false
 """
     with open(os.path.join(project_path, "export_presets.cfg"), "w") as f:
         f.write(export_presets_content)
