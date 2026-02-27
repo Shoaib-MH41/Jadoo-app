@@ -1,4 +1,5 @@
 import os
+import subprocess
 
 def create_mock_project():
     """Generates a minimal valid Godot project for CI testing."""
@@ -48,7 +49,24 @@ func _ready():
     with open(os.path.join(project_path, "main.gd"), "w") as f:
         f.write(main_gd_content)
 
+    # Generate debug.keystore
+    keystore_path = os.path.join(project_path, "debug.keystore")
+    if not os.path.exists(keystore_path):
+        print("Generating debug.keystore...")
+        subprocess.run([
+            "keytool", "-genkey", "-v",
+            "-keystore", keystore_path,
+            "-alias", "androiddebugkey",
+            "-keyalg", "RSA",
+            "-keysize", "2048",
+            "-validity", "10000",
+            "-storepass", "android",
+            "-keypass", "android",
+            "-dname", "CN=Android Debug,O=Android,C=US"
+        ], check=True)
+
     # export_presets.cfg (CRITICAL for Android export)
+    # Using res://debug.keystore because the keystore is inside the project folder
     export_presets_content = """[preset.0]
 
 name="Android"
@@ -221,9 +239,9 @@ architectures/armeabi-v7a=true
 architectures/arm64-v8a=true
 architectures/x86=false
 architectures/x86_64=false
-keystore/debug=""
-keystore/debug_user=""
-keystore/debug_password=""
+keystore/debug="res://debug.keystore"
+keystore/debug_user="androiddebugkey"
+keystore/debug_password="android"
 keystore/release=""
 keystore/release_user=""
 keystore/release_password=""
