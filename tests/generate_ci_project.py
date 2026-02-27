@@ -266,6 +266,7 @@ keystore/release_user=""
 keystore/release_password=""
 version/code=1
 version/name="1.0"
+gradle_build/use_gradle_build=false
 """
     with open(os.path.join(project_path, "export_presets.cfg"), "w") as f:
         f.write(export_presets_content)
