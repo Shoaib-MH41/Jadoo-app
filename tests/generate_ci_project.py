@@ -51,6 +51,7 @@ func _ready():
 
     # Generate debug.keystore
     keystore_path = os.path.join(project_path, "debug.keystore")
+    keystore_abs_path = os.path.abspath(keystore_path)
     if not os.path.exists(keystore_path):
         print("Generating debug.keystore...")
         subprocess.run([
@@ -64,6 +65,24 @@ func _ready():
             "-keypass", "android",
             "-dname", "CN=Android Debug,O=Android,C=US"
         ], check=True)
+
+    # Create editor_settings-4.tres for Godot 4
+    # This ensures Godot knows where the Android SDK is
+    android_home = os.environ.get("ANDROID_HOME", "/home/runner/android-sdk")
+    config_path = os.path.expanduser("~/.config/godot")
+    os.makedirs(config_path, exist_ok=True)
+
+    editor_settings_content = f"""[gd_resource type="EditorSettings" format=3]
+
+[resource]
+export/android/android_sdk_path = "{android_home}"
+export/android/debug_keystore = "{keystore_abs_path}"
+export/android/debug_keystore_user = "androiddebugkey"
+export/android/debug_keystore_pass = "android"
+"""
+    with open(os.path.join(config_path, "editor_settings-4.tres"), "w") as f:
+        f.write(editor_settings_content)
+    print(f"Created editor settings at {os.path.join(config_path, 'editor_settings-4.tres')}")
 
     # export_presets.cfg (CRITICAL for Android export)
     # Using res://debug.keystore because the keystore is inside the project folder
