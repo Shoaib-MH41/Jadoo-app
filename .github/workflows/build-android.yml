@@ -91,18 +91,6 @@ jobs:
         run: |
           python tests/generate_ci_project.py
 
-      # -----------------------------
-      # Ensure debug keystore exists
-      # -----------------------------
-      - name: Generate Debug Keystore
-        run: |
-          keytool -genkey -v \
-          -keystore generated_games/debug.keystore \
-          -storepass android \
-          -alias androiddebugkey \
-          -keypass android \
-          -dname "CN=Android Debug,O=Android,C=US" \
-          -keyalg RSA -keysize 2048 -validity 10000
 
       # -----------------------------
       # Export APK
