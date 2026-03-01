@@ -12,42 +12,47 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # -----------------------------
+      # Install system dependencies
+      # -----------------------------
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y openjdk-17-jdk wget unzip
+          sudo apt-get install -y openjdk-17-jdk wget unzip gradle
 
+      # -----------------------------
+      # Setup Python (for generator)
+      # -----------------------------
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
+      # -----------------------------
+      # Setup Android SDK
+      # -----------------------------
       - name: Setup Android SDK
         run: |
           export ANDROID_HOME=$HOME/android-sdk
-          export ANDROID_SDK_ROOT=$HOME/android-sdk
-          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
-
-          # Create directory structure
           mkdir -p $ANDROID_HOME/cmdline-tools
 
-          # Download Command Line Tools
           wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip
           unzip -q cmdline-tools.zip -d $ANDROID_HOME/cmdline-tools
           mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
           rm cmdline-tools.zip
 
-          # Accept licenses
-          yes | sdkmanager --licenses
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
 
-          # Install required packages
+          yes | sdkmanager --licenses
           sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
-          # Set environment variables for subsequent steps
           echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
-          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
-          echo "PATH=$PATH" >> $GITHUB_ENV
+          echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH" >> $GITHUB_ENV
 
+      # -----------------------------
+      # Install Godot
+      # -----------------------------
       - name: Setup Godot
         run: |
           wget -q https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip -O godot.zip
@@ -56,6 +61,9 @@ jobs:
           sudo chmod +x /usr/local/bin/godot
           rm godot.zip
 
+      # -----------------------------
+      # Install Export Templates
+      # -----------------------------
       - name: Setup Export Templates
         run: |
           wget -q https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz -O templates.tpz
@@ -64,18 +72,51 @@ jobs:
           mv templates_tmp/templates/* ~/.local/share/godot/export_templates/4.3.stable/
           rm -rf templates_tmp templates.tpz
 
+      # -----------------------------
+      # Tell Godot where Android SDK is
+      # 🔥 THIS WAS MISSING
+      # -----------------------------
+      - name: Configure Godot Android SDK
+        run: |
+          mkdir -p ~/.config/godot
+          echo '
+          [android]
+          sdk_path="'$ANDROID_HOME'"
+          ' > ~/.config/godot/editor_settings-4.tres
+
+      # -----------------------------
+      # Generate project
+      # -----------------------------
       - name: Generate Mock Project
         run: |
           python tests/generate_ci_project.py
 
+      # -----------------------------
+      # Ensure debug keystore exists
+      # -----------------------------
+      - name: Generate Debug Keystore
+        run: |
+          keytool -genkey -v \
+          -keystore generated_games/debug.keystore \
+          -storepass android \
+          -alias androiddebugkey \
+          -keypass android \
+          -dname "CN=Android Debug,O=Android,C=US" \
+          -keyalg RSA -keysize 2048 -validity 10000
+
+      # -----------------------------
+      # Export APK
+      # -----------------------------
       - name: Export APK
         env:
           JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
         run: |
-          godot --headless --path generated_games --export-debug "Android" build.apk
+          godot --headless --verbose --path generated_games --export-debug "Android" build.apk
 
+      # -----------------------------
+      # Upload APK
+      # -----------------------------
       - name: Upload Artifact
-        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: build.apk
