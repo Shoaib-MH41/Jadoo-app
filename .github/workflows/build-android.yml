@@ -8,7 +8,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      ANDROID_HOME: ${{ github.workspace }}/android-sdk
+      ANDROID_SDK_ROOT: ${{ github.workspace }}/android-sdk
+      JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+
     steps:
+      # -----------------------------
+      # Checkout
+      # -----------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -18,10 +26,10 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y openjdk-17-jdk wget unzip gradle
+          sudo apt-get install -y openjdk-17-jdk wget unzip
 
       # -----------------------------
-      # Setup Python (for generator)
+      # Setup Python
       # -----------------------------
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -33,7 +41,6 @@ jobs:
       # -----------------------------
       - name: Setup Android SDK
         run: |
-          export ANDROID_HOME=$HOME/android-sdk
           mkdir -p $ANDROID_HOME/cmdline-tools
 
           wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip
@@ -45,10 +52,6 @@ jobs:
 
           yes | sdkmanager --licenses
           sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
-
-          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
-          echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> $GITHUB_ENV
-          echo "PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH" >> $GITHUB_ENV
 
       # -----------------------------
       # Install Godot
@@ -73,31 +76,31 @@ jobs:
           rm -rf templates_tmp templates.tpz
 
       # -----------------------------
-      # Tell Godot where Android SDK is
-      # 🔥 THIS WAS MISSING
-      # -----------------------------
-      - name: Configure Godot Android SDK
-        run: |
-          mkdir -p ~/.config/godot
-          echo '
-          [android]
-          sdk_path="'$ANDROID_HOME'"
-          ' > ~/.config/godot/editor_settings-4.tres
-
-      # -----------------------------
-      # Generate project
+      # Generate project FIRST
       # -----------------------------
       - name: Generate Mock Project
         run: |
           python tests/generate_ci_project.py
 
+      # -----------------------------
+      # Create Proper Godot Editor Settings
+      # 🔥 FULL ANDROID CONFIG
+      # -----------------------------
+      - name: Configure Godot Android SDK
+        run: |
+          mkdir -p ~/.config/godot
+          cat <<EOF > ~/.config/godot/editor_settings-4.tres
+          [android]
+          sdk_path="$ANDROID_HOME"
+          adb_path="$ANDROID_HOME/platform-tools/adb"
+          jarsigner_path="$JAVA_HOME/bin/jarsigner"
+          debug_keystore="$GITHUB_WORKSPACE/generated_games/debug.keystore"
+          EOF
 
       # -----------------------------
       # Export APK
       # -----------------------------
       - name: Export APK
-        env:
-          JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
         run: |
           godot --headless --verbose --path generated_games --export-debug "Android" build.apk
 
