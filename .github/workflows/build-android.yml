@@ -65,26 +65,33 @@ jobs:
           rm godot.zip
 
       # -----------------------------
-      # Install Export Templates
+      # Install Export Templates (AUTO VERSION DETECT)
       # -----------------------------
       - name: Setup Export Templates
         run: |
+          GODOT_VERSION=$(godot --version | awk '{print $2}')
+          TEMPLATE_DIR="$HOME/.local/share/godot/export_templates/$GODOT_VERSION"
+
+          echo "Godot version: $GODOT_VERSION"
+          echo "Template dir: $TEMPLATE_DIR"
+
           wget -q https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz -O templates.tpz
           unzip -q templates.tpz -d templates_tmp
-          mkdir -p ~/.local/share/godot/export_templates/4.3.stable.oficial
-          mv templates_tmp/templates/* ~/.local/share/godot/export_templates/4.3.stable/
+
+          mkdir -p "$TEMPLATE_DIR"
+          mv templates_tmp/templates/* "$TEMPLATE_DIR/"
+
           rm -rf templates_tmp templates.tpz
 
       # -----------------------------
-      # Generate project FIRST
+      # Generate project
       # -----------------------------
       - name: Generate Mock Project
         run: |
           python tests/generate_ci_project.py
 
       # -----------------------------
-      # Create Proper Godot Editor Settings
-      # 🔥 FULL ANDROID CONFIG
+      # Configure Godot Android SDK
       # -----------------------------
       - name: Configure Godot Android SDK
         run: |
