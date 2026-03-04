@@ -64,16 +64,14 @@ jobs:
           sudo chmod +x /usr/local/bin/godot
           rm godot.zip
 
-      # -----------------------------
-      # Install Export Templates (AUTO VERSION DETECT)
+         # -----------------------------
+      # Install Export Templates (FIXED PATH)
       # -----------------------------
       - name: Setup Export Templates
         run: |
-          GODOT_VERSION=$(godot --version | awk '{print $2}')
-          TEMPLATE_DIR="$HOME/.local/share/godot/export_templates/$GODOT_VERSION"
+          TEMPLATE_DIR="$HOME/.local/share/godot/export_templates/4.3.stable"
 
-          echo "Godot version: $GODOT_VERSION"
-          echo "Template dir: $TEMPLATE_DIR"
+          echo "Installing templates to: $TEMPLATE_DIR"
 
           wget -q https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz -O templates.tpz
           unzip -q templates.tpz -d templates_tmp
@@ -82,6 +80,9 @@ jobs:
           mv templates_tmp/templates/* "$TEMPLATE_DIR/"
 
           rm -rf templates_tmp templates.tpz
+
+          echo "Templates installed:"
+          ls -lah "$TEMPLATE_DIR"
 
       # -----------------------------
       # Generate project
