@@ -96,7 +96,7 @@ custom_features=""
 export_filter="all_resources"
 include_filter=""
 exclude_filter=""
-export_path=""
+export_path="build.apk"
 encryption_include_filters=""
 encryption_exclude_filters=""
 encrypt_pck=false
@@ -106,7 +106,7 @@ encrypt_directory=false
 
 package/unique_name="com.example.mockgame"
 package/name="Mock Game"
-package/signed=true
+package/signed=false
 package/app_category=1
 package/retain_data_on_uninstall=false
 package/exclude_from_recents=false
@@ -266,7 +266,7 @@ keystore/release_user=""
 keystore/release_password=""
 version/code=1
 version/name="1.0"
-gradle_build/use_gradle_build=false
+gradle_build/use_gradle_build=true
 """
     with open(os.path.join(project_path, "export_presets.cfg"), "w") as f:
         f.write(export_presets_content)

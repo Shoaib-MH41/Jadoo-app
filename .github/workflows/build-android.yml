@@ -92,25 +92,11 @@ jobs:
           python tests/generate_ci_project.py
 
       # -----------------------------
-      # Configure Godot Android SDK
-      # -----------------------------
-      - name: Configure Godot Android SDK
-        run: |
-          mkdir -p ~/.config/godot
-          cat <<EOF > ~/.config/godot/editor_settings-4.tres
-          [android]
-          sdk_path="$ANDROID_HOME"
-          adb_path="$ANDROID_HOME/platform-tools/adb"
-          jarsigner_path="$JAVA_HOME/bin/jarsigner"
-          debug_keystore="$GITHUB_WORKSPACE/generated_games/debug.keystore"
-          EOF
-
-      # -----------------------------
       # Export APK
       # -----------------------------
       - name: Export APK
         run: |
-          godot --headless --verbose --path generated_games --export-debug "Android" build.apk
+          godot --headless --verbose --path generated_games --install-android-build-template --export-debug "Android" build.apk
 
       # -----------------------------
       # Upload APK
