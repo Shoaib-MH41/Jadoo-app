@@ -64,60 +64,24 @@ func _ready():
         ], check=True)
         print("✅ debug.keystore created")
 
-    # export_presets.cfg (مکمل اور درست)
+    # export_presets.cfg (fixed formatting and removed gradle_build)
     export_presets_content = """[preset.0]
 
 name="Android"
 platform="Android"
 runnable=true
-dedicated_server=false
-custom_features=""
 export_filter="all_resources"
-include_filter=""
-exclude_filter=""
 export_path="../build.apk"
-encryption_include_filters=""
-encryption_exclude_filters=""
-encrypt_pck=false
-encrypt_directory=false
 
 [preset.0.options]
 
-custom_template/debug=""
-custom_template/release=""
-gradle_build/use_gradle_build=true
-gradle_build/gradle_build_directory="res://android/build"
-gradle_build/android_source_template=""
-gradle_build/compress_native_libraries=false
-gradle_build/export_format=0
-gradle_build/min_sdk=""
-gradle_build/target_sdk=""
-architectures/armeabi-v7a=false
 architectures/arm64-v8a=true
-architectures/x86=false
-architectures/x86_64=false
 keystore/debug="res://debug.keystore"
 keystore/debug_user="androiddebugkey"
 keystore/debug_password="android"
-keystore/release=""
-keystore/release_user=""
-keystore/release_password=""
-version/code=1
-version/name="1.0"
 package/unique_name="com.example.mockgame"
 package/name="Mock Game"
 package/signed=true
-package/app_category=2
-package/retain_data_on_uninstall=false
-package/exclude_from_recents=false
-package/show_in_android_tv=false
-package/show_in_app_library=true
-package/is_game=true
-screen/immersive_mode=true
-screen/support_small=true
-screen/support_normal=true
-screen/support_large=true
-screen/support_xlarge=true
 """
     with open(os.path.join(project_path, "export_presets.cfg"), "w") as f:
         f.write(export_presets_content)
