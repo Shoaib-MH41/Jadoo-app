@@ -66,16 +66,19 @@ jobs:
           rm -rf templates_tmp templates.tpz
 
       # -----------------------------
-      # Generate Project (روٹ میں)
+      # Generate Project
       # -----------------------------
       - name: Generate Mock Project
         run: |
-          # پہلے tests/ میں جائیں، پھر واپس
+          # پرانی فولڈر صاف کریں
+          rm -rf generated_games tests/generated_games
+          
+          # بنائیں
           cd tests
           python generate_ci_project.py
           cd ..
           
-          # فائلیں tests/ سے روٹ میں منتقل کریں
+          # منتقل کریں
           mv tests/generated_games .
           
           # چیک کریں
@@ -83,31 +86,33 @@ jobs:
           ls -la generated_games/
           
           echo "=== export_presets.cfg ==="
-          cat generated_games/export_presets.cfg
+          cat generated_games/export_presets.cfg | head -20
 
       # -----------------------------
-      # Create Debug Keystore
+      # Configure Godot Editor Settings
       # -----------------------------
-      - name: Create Debug Keystore
+      - name: Configure Godot Editor Settings
         run: |
-          keytool -genkey -v \
-            -keystore generated_games/debug.keystore \
-            -storepass android \
-            -alias androiddebugkey \
-            -keypass android \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -dname "CN=Android Debug,O=Android,C=US"
-          
-          ls -la generated_games/
+          mkdir -p ~/.config/godot
+          cat > ~/.config/godot/editor_settings-4.tres << EOF
+[gd_resource type="EditorSettings" format=3]
+
+[resource]
+export/android/android_sdk_path = "$ANDROID_HOME"
+export/android/debug_keystore = "$GITHUB_WORKSPACE/generated_games/debug.keystore"
+export/android/debug_keystore_user = "androiddebugkey"
+export/android/debug_keystore_pass = "android"
+EOF
+          echo "=== Editor settings ==="
+          cat ~/.config/godot/editor_settings-4.tres
 
       # -----------------------------
       # Export APK
       # -----------------------------
       - name: Export APK
         run: |
-          godot --headless --verbose --path generated_games --export-debug "Android" build.apk
+          cd generated_games
+          godot --headless --verbose --export-debug "Android" ../build.apk
 
       # -----------------------------
       # Upload APK
@@ -117,3 +122,4 @@ jobs:
         with:
           name: build.apk
           path: build.apk
+          if-no-files-found: error
