@@ -64,36 +64,19 @@ func _ready():
         ], check=True)
         print("✅ debug.keystore created")
 
-    # export_presets.cfg (مکمل اور درست)
+    # export_presets.cfg — SIMPLE, NO GRADLE
     export_presets_content = """[preset.0]
 
 name="Android"
 platform="Android"
 runnable=true
-dedicated_server=false
-custom_features=""
 export_filter="all_resources"
-include_filter=""
-exclude_filter=""
 export_path="../build.apk"
-encryption_include_filters=""
-encryption_exclude_filters=""
-encrypt_pck=false
-encrypt_directory=false
 
 [preset.0.options]
 
-custom_template/debug=""
-custom_template/release=""
-gradle_build/use_gradle_build=true
-gradle_build/gradle_build_directory="res://android/build"
-gradle_build/android_source_template=""
-gradle_build/compress_native_libraries=false
-gradle_build/export_format=0
-gradle_build/min_sdk=""
-gradle_build/target_sdk=""
-architectures/armeabi-v7a=false
 architectures/arm64-v8a=true
+architectures/armeabi-v7a=false
 architectures/x86=false
 architectures/x86_64=false
 keystore/debug="res://debug.keystore"
