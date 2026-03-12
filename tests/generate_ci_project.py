@@ -64,13 +64,15 @@ func _ready():
         ], check=True)
         print("✅ debug.keystore created")
 
-    # export_presets.cfg — SIMPLE, NO GRADLE
+    # export_presets.cfg — include_filter اور exclude_filter شامل
     export_presets_content = """[preset.0]
 
 name="Android"
 platform="Android"
 runnable=true
 export_filter="all_resources"
+include_filter=""
+exclude_filter=""
 export_path="../build.apk"
 
 [preset.0.options]
