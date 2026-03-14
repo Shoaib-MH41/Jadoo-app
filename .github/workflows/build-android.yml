@@ -73,7 +73,7 @@ jobs:
       - name: Export APK
         run: |
           cd generated_games
-          godot --headless --verbose --export-debug "Android" ../build.apk
+          godot --headless --verbose --export-debug "Android" ../build.apk --install-android-build-template
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
