@@ -91,7 +91,7 @@ version/code=1
 version/name="1.0"
 package/unique_name="com.example.mockgame"
 package/name="Mock Game"
-package/signed=true
+package/signed=false
 package/app_category=2
 package/retain_data_on_uninstall=false
 package/exclude_from_recents=false
@@ -103,6 +103,7 @@ screen/support_small=true
 screen/support_normal=true
 screen/support_large=true
 screen/support_xlarge=true
+gradle_build/use_gradle_build=true
 """
     with open(os.path.join(project_path, "export_presets.cfg"), "w") as f:
         f.write(export_presets_content)
