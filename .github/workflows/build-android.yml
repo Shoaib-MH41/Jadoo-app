@@ -59,8 +59,16 @@ jobs:
           mv tests/generated_games .
           ls -la generated_games/
 
+      - name: Prepare Project Files
+        run: |
+          # ایکسپورٹ پری سیٹ فائل کو جنریٹڈ گیمز فولڈر میں کاپی کرنا تاکہ Godot اسے ڈھونڈ سکے
+          cp export_presets.cfg generated_games/ || true
+          # اگر پروجیکٹ فائل کا نام کچھ اور ہے تو اسے بھی چیک کریں
+          ls -la generated_games/
+
       - name: Generate Debug Keystore
         run: |
+          # پرانی فائل مٹانا اور نئی چابی 'generated_games' کے اندر بنانا
           rm -f generated_games/debug.keystore
           keytool -keyalg RSA -genkey -v -keystore generated_games/debug.keystore -alias androiddebugkey -storepass android -keypass android -dname "CN=Android Debug,O=Android,C=US" -validity 365
 
@@ -78,6 +86,7 @@ jobs:
       - name: Export APK
         run: |
           cd generated_games
+          # اب Godot کو صحیح جگہ پر تمام فائلیں مل جائیں گی
           godot --headless --verbose --export-debug "Android" ../build.apk
 
       - name: Upload Artifact
