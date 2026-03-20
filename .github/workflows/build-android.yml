@@ -61,6 +61,7 @@ jobs:
 
       - name: Generate Debug Keystore
         run: |
+          rm -f generated_games/debug.keystore
           keytool -keyalg RSA -genkey -v -keystore generated_games/debug.keystore -alias androiddebugkey -storepass android -keypass android -dname "CN=Android Debug,O=Android,C=US" -validity 365
 
       - name: Configure Godot Editor Settings
