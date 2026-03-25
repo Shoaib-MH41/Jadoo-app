@@ -88,7 +88,7 @@ jobs:
           # مرحلہ 1: پروجیکٹ کو امپورٹ کریں (یہ سب سے اہم ہے)
           godot --headless --editor --quit --verbose
           # مرحلہ 2: اب ایکسپورٹ کریں
-          godot --headless --verbose --export-debug "Android" ../build.apk
+          godot --headless --verbose --install-android-build-template --export-debug "Android" ../build.apk
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
